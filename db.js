@@ -23,18 +23,51 @@ const sync = async () => {
 
   CREATE TABLE student
   (
-    id INT PRIMARY KEY,
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR NOT NULL,
-    schoolID UUID references school(id),
+    schoolID UUID references school(id) NULL,
     date_create TIMESTAMP default CURRENT_TIMESTAMP
   );
 
-
+  INSERT INTO school (name) VALUES ('UConn');
+  INSERT INTO student (name, schoolID) VALUES ('Colleen Dunion', (select id from school where name = 'UConn'))
 
   `
   await client.query(SQL)
 }
 
+const createStudent = async (name, school) => {
+  const SQL = `
+  INSERT INTO student (name, schoolID) VALUES ($1, (select id from school where name = $2))
+  returning *
+  `
+  const response = await client.query(SQL, [name, school])
+  return response.rows
+}
+const createSchool = () => {}
+const updateStudent = () => {}
+
+const getStudents = async () => {
+  const SQL = `
+  SELECT * FROM student
+  `
+  const response = await client.query(SQL)
+  return response.rows
+}
+
+const getSchools = async () => {
+  const SQL = `
+  SELECT * FROM school
+  `
+  const response = await client.query(SQL)
+  return response.rows
+}
+
 module.exports = {
-  sync
+  sync,
+  createSchool,
+  createStudent,
+  updateStudent,
+  getStudents,
+  getSchools
 }

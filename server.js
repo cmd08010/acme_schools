@@ -16,14 +16,24 @@ app.get("/", (req, res, next) => {
   res.sendFile(path.join(__dirname + "/index.html"))
 })
 
-app.post("/api/", (req, res, next) => {
-  console.log("wow")
+app.get("/api/students", (req, res, next) => {
+  db.getStudents().then(response => res.send(response))
 })
-app.delete("/api/", (req, res, next) => {
-  console.log("wow")
+
+app.get("/api/schools", (req, res, next) => {
+  db.getSchools().then(response => res.send(response))
+})
+app.post("/api/students", (req, res, next) => {
+  res.send("wow")
+})
+app.post("/api/schools", (req, res, next) => {
+  res.send("wow")
+})
+app.delete("/api/schools", (req, res, next) => {
+  res.send("wow")
 })
 app.put("/api/", (req, res, next) => {
-  console.log("wow")
+  res.send("wow")
 })
 
 db.sync()

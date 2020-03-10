@@ -23,6 +23,47 @@ button {
   font-size: 1.5rem;
 }
 
+.create {
+  display: flex;
+  flex-direction: row;
+}
+
+.student {
+  display: flex;
+  flex-direction: column;
+  border: solid black 1px;
+  margin: 1rem;
+  padding: 10px;
+  height: 300px;
+  width: 250px;
+}
+
+.info {
+  display: flex;
+  flex-direction: row;
+}
+
+.school {
+  display: flex;
+  flex-direction: column;
+  border: solid black 1px;
+  margin: 1rem;
+  padding: 10px;
+  height: 300px;
+  width: 250px;
+}
+
+.input-box {
+  border: solid black 1px;
+  padding: 1rem;
+  margin: 25px;
+  height: 30px;
+  width: 75%;
+}
+button {
+  margin: 25px 50px 75px 100px;
+}
+
 h2 {
   text-transform: uppercase;
 }
