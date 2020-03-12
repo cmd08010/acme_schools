@@ -27,6 +27,7 @@
       const App = () => {
         const [school, setSchool] = useState([])
         const [schools, setSchools] = useState([])
+        const [unenrolledStudents, setUnenrolledStudents] = useState([])
 
         const [student, setStudent] = useState([])
         const [students, setStudents] = useState([])
@@ -37,45 +38,95 @@
             .then(responses => responses.map(response => response.data))
             .then(results => {
               setSchools(results[0])
-              setStudents(results[1])
+              setUnenrolledStudents(results[1][1])
+              setStudents(results[1][0])
             })
         }, [])
 
-        // {students.map(student => {
-        //   return (
-        //     <div key={student.id}>
-        //       <li>{student}</li>
-        //     </div>
-        //   )
-        // })}
-        console.log(schools)
-        console.dir(schools)
+        const createStudent = async ev => {
+          const response = await axios.post(`/api/students/${student}`, [
+            school
+          ])
+          await setStudents([...response.data, ...students])
+        }
+
+        const createSchool = async ev => {
+          const response = await axios.post(`/api/schools/${school}`)
+          await setSchools([...response.data, ...schools])
+        }
+
         return (
           <div>
             <h1>Acme Schools</h1>
+            <ul>
+              <li>{schools.length} Schools</li>
+              <li>
+                {students.length} Students ({unenrolledStudents.length}{" "}
+                unenrolled)
+              </li>
+            </ul>
+            {schools.map(school => {
+              return <div key={school.id}></div>
+            })}
             <div>
               <ul></ul>
             </div>
             <div className="create">
               <div className="student">
                 <h3>Create student</h3>
-                <input className="input-box"></input>
+                <input
+                  className="input-box"
+                  onChange={ev => {
+                    setStudent(ev.target.value)
+                  }}
+                ></input>
                 <label>Choose school: </label>
-                <select id="schools">
-                  <option value="test">Test</option>
-                  <option value="test2">Test2</option>
+                <select
+                  id="schools"
+                  onChange={ev => setSchool(ev.target.value)}
+                >
+                  <option value="">Unenrolled</option>
+                  {schools.map(school => {
+                    return (
+                      <option value={school.name} key={school.id}>
+                        {school.name}
+                      </option>
+                    )
+                  })}
                 </select>
-                <button>Create</button>
+                <button onClick={ev => createStudent(ev)}>Create</button>
               </div>
               <div className="school">
                 <h3>Create school</h3>
-                <input className="input-box"></input>
-                <button>Create</button>
+                <input
+                  className="input-box"
+                  onChange={ev => {
+                    setSchool(ev.target.value)
+                  }}
+                ></input>
+                <button onClick={ev => createSchool(ev)}>Create</button>
               </div>
             </div>
             <div className="info">
-              <div className="student">unenrolled students</div>
-              <div className="school">more divs for each school</div>
+              <div className="student">
+                <h3>Unenrolled Students</h3>
+                {unenrolledStudents.map(mapStudent => {
+                  return (
+                    <div key={mapStudent.id}>
+                      <ul>
+                        <li>{mapStudent.name}</li>
+                      </ul>
+                    </div>
+                  )
+                })}
+              </div>
+              {schools.map(mapSchool => {
+                return (
+                  <div className="school" key={mapSchool.id}>
+                    <h3>{mapSchool.name}</h3>
+                  </div>
+                )
+              })}
             </div>
           </div>
         )
