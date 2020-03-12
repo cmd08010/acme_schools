@@ -25,28 +25,19 @@ const sync = async () => {
   (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR NOT NULL,
-    schoolID UUID references school(id) NULL,
+    schoolid UUID references school(id) NULL,
     date_create TIMESTAMP default CURRENT_TIMESTAMP
   );
 
   INSERT INTO school (name) VALUES ('UConn');
-  INSERT INTO student (name, schoolID) VALUES ('Colleen Dunion', (select id from school where name = 'UConn'))
+  INSERT INTO student (name, schoolid) VALUES ('Colleen Dunion', (select id from school where name = 'UConn'));
+  INSERT INTO student (name) VALUES ('Michael Jennings');
 
   `
   await client.query(SQL)
 }
 
-const createStudent = async (name, school) => {
-  const SQL = `
-  INSERT INTO student (name, schoolID) VALUES ($1, (select id from school where name = $2))
-  returning *
-  `
-  const response = await client.query(SQL, [name, school])
-  return response.rows
-}
-const createSchool = () => {}
-const updateStudent = () => {}
-
+//get
 const getStudents = async () => {
   const SQL = `
   SELECT * FROM student
@@ -63,11 +54,46 @@ const getSchools = async () => {
   return response.rows
 }
 
+const getUnenrolledStudents = async () => {
+  const SQL = `
+  SELECT * FROM student WHERE schoolid IS NULL`
+  const response = await client.query(SQL)
+  return response.rows
+}
+
+//Create
+const createStudent = async (name, school) => {
+  const SQL = `
+  INSERT INTO student (name, schoolid) VALUES ($1, (SELECT id FROM school WHERE name = $2))
+  returning *
+  `
+  console.log(school, name, "test")
+  const response = await client.query(SQL, [name, school])
+  console.log(response.rows, "db respose")
+
+  return response.rows[0]
+}
+
+const createSchool = async name => {
+  const SQL = `
+  INSERT INTO school (name) VALUES ($1)
+  returning *
+  `
+  const response = await client.query(SQL, [name])
+  return response.rows[0]
+}
+
+//update
+const updateStudent = () => {}
+
+//delete
+
 module.exports = {
   sync,
   createSchool,
   createStudent,
   updateStudent,
   getStudents,
+  getUnenrolledStudents,
   getSchools
 }

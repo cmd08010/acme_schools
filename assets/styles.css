@@ -69,12 +69,7 @@ h2 {
 }
 
 li {
-  display: flex;
-  align-items: center;
-}
-
-li > * {
-  margin: 1rem;
+  margin-left: 1rem;
 }
 
 h1 {
