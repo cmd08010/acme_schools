@@ -35,7 +35,7 @@ button {
   margin: 1rem;
   padding: 10px;
   height: 300px;
-  width: 250px;
+  width: 300px;
 }
 
 .info {
@@ -50,7 +50,7 @@ button {
   margin: 1rem;
   padding: 10px;
   height: 300px;
-  width: 250px;
+  width: 300px;
 }
 
 .input-box {
@@ -85,4 +85,9 @@ section {
   border-radius: 3rem;
   flex-direction: column;
   align-items: center;
+}
+
+.spread {
+  display: flex;
+  width: 100%;
 }

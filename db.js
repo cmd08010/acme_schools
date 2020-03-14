@@ -31,7 +31,7 @@ const sync = async () => {
 
   INSERT INTO school (name) VALUES ('UConn');
   INSERT INTO student (name, schoolid) VALUES ('Colleen Dunion', (select id from school where name = 'UConn'));
-  INSERT INTO student (name) VALUES ('Michael Jennings');
+  INSERT INTO student (name) VALUES ('Charles St. Charles');
 
   `
   await client.query(SQL)
@@ -84,9 +84,27 @@ const createSchool = async name => {
 }
 
 //update
-const updateStudent = () => {}
+const updateStudent = async (id, school) => {
+  const SQL = `UPDATE student SET schoolid = $2 WHERE id = $1
+  returning *`
+  const response = await client.query(SQL, [id, school])
+  console.log(response.rows)
+  return response.rows[0]
+}
 
 //delete
+
+const deleteStudent = async id => {
+  const SQL = `DELETE FROM student WHERE id = $1 `
+  const response = await client.query(SQL, [id])
+  return response.rows[0]
+}
+const deleteSchool = async id => {
+  const SQL = `DELETE FROM student WHERE id = $1
+  returning * `
+  const response = await client.query(SQL, [id])
+  return response.rows[0]
+}
 
 module.exports = {
   sync,
@@ -95,5 +113,7 @@ module.exports = {
   updateStudent,
   getStudents,
   getUnenrolledStudents,
-  getSchools
+  getSchools,
+  deleteStudent,
+  deleteSchool
 }

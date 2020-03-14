@@ -31,6 +31,7 @@
 
         const [student, setStudent] = useState([])
         const [students, setStudents] = useState([])
+        const [params, setParams] = useState("")
 
         useEffect(() => {
           console.log("use effect running")
@@ -47,12 +48,199 @@
           const response = await axios.post(`/api/students/${student}`, [
             school
           ])
-          await setStudents([...response.data, ...students])
+          if (response.data.schoolid === "null") {
+            setUnenrolledStudents([response.data, ...unenrolledStudents])
+          } else {
+            setStudents([response.data, ...students])
+          }
         }
 
         const createSchool = async ev => {
           const response = await axios.post(`/api/schools/${school}`)
-          await setSchools([...response.data, ...schools])
+          setSchools([response.data, ...schools])
+        }
+
+        const unEnrollStudent = async id => {
+          const response = await axios.put(`/api/students/${id}`)
+          axios
+            .get("/api/students")
+            .then(getResponse => setStudents([getResponse.data, ...students]))
+          setUnenrolledStudents([response.data, ...unenrolledStudents])
+        }
+
+        const enrollStudent = (funcStudent, funcSchool) => {
+          axios
+            .put("/api/schools", [funcStudent, funcSchool])
+            .then(response => {
+              console.log(response)
+              setStudents([response.data, ...students])
+              setUnenrolledStudents([...unenrolledStudents])
+            })
+        }
+
+        const deleteStudent = () => {
+          const studentID = student[0].id
+
+          axios.delete("/api/students", [studentID]).then(response => {
+            setParams("")
+
+            axios
+              .get("/api/students")
+              .then(getResponse => setStudents([getResponse.data]))
+          })
+        }
+
+        const Main = () => {
+          return (
+            <div>
+              {schools.map(school => {
+                return <div key={school.id}></div>
+              })}
+              <div>
+                <ul></ul>
+              </div>
+              <div className="create">
+                <div className="student">
+                  <h3>Create student</h3>
+                  <input
+                    className="input-box"
+                    onChange={ev => {
+                      setStudent(ev.target.value)
+                    }}
+                  ></input>
+                  <label>Choose school: </label>
+                  <select
+                    id="schools"
+                    onChange={ev => setSchool(ev.target.value)}
+                  >
+                    <option value="">Unenrolled</option>
+                    {schools.map(mapSchool => {
+                      return (
+                        <option value={mapSchool.name} key={mapSchool.id}>
+                          {mapSchool.name}
+                        </option>
+                      )
+                    })}
+                  </select>
+                  <button onClick={ev => createStudent(ev)}>Create</button>
+                </div>
+                <div className="school">
+                  <h3>Create school</h3>
+                  <input
+                    className="input-box"
+                    onChange={ev => {
+                      setSchool(ev.target.value)
+                    }}
+                  ></input>
+                  <button onClick={ev => createSchool(ev)}>Create</button>
+                </div>
+              </div>
+              <div className="info">
+                <div className="student">
+                  <h3>Unenrolled Students</h3>
+                  {unenrolledStudents.map(mapStudent => {
+                    return (
+                      <div key={mapStudent.id}>
+                        <ul>
+                          <li>
+                            <a
+                              onClick={ev => {
+                                setParams("selected")
+                                setStudent([mapStudent])
+                              }}
+                            >
+                              {mapStudent.name}{" "}
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    )
+                  })}
+                </div>
+                {schools.map(mapSchool => {
+                  return (
+                    <div className="school" key={mapSchool.id}>
+                      <h3>{mapSchool.name}</h3>
+
+                      {unenrolledStudents.map(unenStudent => {
+                        return (
+                          <select
+                            id="students"
+                            onChange={ev =>
+                              enrollStudent(ev.target.value, mapSchool.id)
+                            }
+                            key={unenStudent.id}
+                          >
+                            <option value="">--Enroll a student--</option>
+                            <option value={unenStudent.id} key={unenStudent.id}>
+                              {unenStudent.name}
+                            </option>
+                          </select>
+                        )
+                      })}
+                      <div>
+                        <ul>
+                          {students.map(aStudent => {
+                            if (aStudent.schoolid === mapSchool.id) {
+                              return (
+                                <div key={aStudent.id}>
+                                  <li>
+                                    {aStudent.name}
+                                    <button
+                                      onClick={() =>
+                                        unEnrollStudent(aStudent.id)
+                                      }
+                                    >
+                                      Unenroll
+                                    </button>
+                                  </li>
+                                </div>
+                              )
+                            }
+                          })}
+                        </ul>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        }
+
+        const Update = ev => {
+          console.log(student)
+          return (
+            <div>
+              <h3>Update Student</h3>
+              <input
+                className="input-box"
+                onChange={ev => {
+                  setStudent(ev.target.value)
+                }}
+              ></input>
+              <div className="spread">
+                <select
+                  id="schools"
+                  onChange={ev => setSchool(ev.target.value)}
+                >
+                  {schools.map(mapSchool => {
+                    return (
+                      <option value={mapSchool.name} key={mapSchool.id}>
+                        {mapSchool.name}
+                      </option>
+                    )
+                  })}
+                </select>
+              </div>
+              <div>
+                <button>Update</button>
+              </div>
+              <div>
+                <button onClick={() => deleteStudent()}>Delete</button>
+              </div>
+            </div>
+          )
         }
 
         return (
@@ -65,72 +253,16 @@
                 unenrolled)
               </li>
             </ul>
-            {schools.map(school => {
-              return <div key={school.id}></div>
-            })}
+
             <div>
-              <ul></ul>
-            </div>
-            <div className="create">
-              <div className="student">
-                <h3>Create student</h3>
-                <input
-                  className="input-box"
-                  onChange={ev => {
-                    setStudent(ev.target.value)
-                  }}
-                ></input>
-                <label>Choose school: </label>
-                <select
-                  id="schools"
-                  onChange={ev => setSchool(ev.target.value)}
-                >
-                  <option value="">Unenrolled</option>
-                  {schools.map(school => {
-                    return (
-                      <option value={school.name} key={school.id}>
-                        {school.name}
-                      </option>
-                    )
-                  })}
-                </select>
-                <button onClick={ev => createStudent(ev)}>Create</button>
-              </div>
-              <div className="school">
-                <h3>Create school</h3>
-                <input
-                  className="input-box"
-                  onChange={ev => {
-                    setSchool(ev.target.value)
-                  }}
-                ></input>
-                <button onClick={ev => createSchool(ev)}>Create</button>
-              </div>
-            </div>
-            <div className="info">
-              <div className="student">
-                <h3>Unenrolled Students</h3>
-                {unenrolledStudents.map(mapStudent => {
-                  return (
-                    <div key={mapStudent.id}>
-                      <ul>
-                        <li>{mapStudent.name}</li>
-                      </ul>
-                    </div>
-                  )
-                })}
-              </div>
-              {schools.map(mapSchool => {
-                return (
-                  <div className="school" key={mapSchool.id}>
-                    <h3>{mapSchool.name}</h3>
-                  </div>
-                )
-              })}
+              {params === "" && <Main />}
+
+              {params === "selected" && <Update />}
             </div>
           </div>
         )
       }
+
       const root = document.querySelector("#root")
       ReactDOM.render(<App />, root)
     </script>

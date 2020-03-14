@@ -42,13 +42,23 @@ app.post("/api/schools/:name", (req, res, next) => {
 })
 
 //delete
-app.delete("/api/schools", (req, res, next) => {
-  res.send("wow")
+app.delete("/api/students", (req, res, next) => {
+  console.log(req.body)
+  db.deleteStudent(req.body[0]).then(response => res.send(response))
 })
 
 //put
-app.put("/api/", (req, res, next) => {
-  res.send("wow")
+app.put("/api/students/:id", (req, res, next) => {
+  db.updateStudent(req.params.id, null).then(response => res.send(response))
+})
+
+app.put("/api/schools", (req, res, next) => {
+  db.updateStudent(req.body[0], req.body[1])
+    .then(response => {
+      console.log(response)
+      res.send(response)
+    })
+    .catch(next)
 })
 
 db.sync()
